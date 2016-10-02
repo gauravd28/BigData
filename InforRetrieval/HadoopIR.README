@@ -1,0 +1,75 @@
+
+
+Please follow below instructions to building and executing the JAVA source files: 
+
+1. Copy input files on HDFS
+2. Copy the source code files in a folder.
+3. Create build folder in the folder where source files are present - mkdir build 
+4. Remove contents from build after executing every JAR. Else, next JAR will unnecesarrily get contents of previous source.
+   Can use command - rm -rf build/*
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+a) DocWordCount.java
+
+Finds the word count of the distinct words in the input file
+
+
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* DocWordCount.java -d build -Xlint
+
+jar -cvf docwordcount.jar -C build/ .
+
+hadoop jar docwordcount.jar org.myorg.DocWordCount <Input Folder> <Output Folder>
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+b) TermFrequency.java
+
+Finds the logarithmic term frequency of the distinct words in the input file
+
+
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* TermFrequency.java -d build -Xlint
+
+jar -cvf termfrequency.jar -C build/ .
+
+hadoop jar termfrequency.jar org.myorg.TermFrequency <Input Folder> <Output Folder>
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+c) TFIDF.java
+
+Runs 2 jobs - First job calculates the term frequency and consecutive next job calculates the IDF and TFIDF scores
+
+
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* TFIDF.java -d build -Xlint
+
+jar -cvf tfidf.jar -C build/ .
+
+hadoop jar tfidf.jar org.myorg.TFIDF <Input Folder> <TermFrequency Output Folder> <TFIDF Output Folder>
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+d) Search.java
+
+Searches the scores for query keywords in the TFIDF dictionary and if the scores match, accumulates the file weight scores into output.
+
+
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* Search.java -d build -Xlint
+
+jar -cvf search.jar -C build/ .
+
+hadoop jar search.jar org.myorg.Search <TFIDF Output Folder> <Search Output Folder> <SearchKeyword1> [<SearchKeyword2>...<SearchKeywordN>]
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+e) Rank.java
+
+Runs 2 jobs -	First job searches the scores for query keywords in the TFIDF dictionary and if the scores match, accumulates the file weight scores into output
+				Second job ranks the entries in descending order of weight scores (relevence)
+
+javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* Rank.java -d build -Xlint
+
+jar -cvf rank.jar -C build/ .
+
+hadoop jar rank.jar org.myorg.Rank <TFIDF Output Folder> <Search Output Folder> <Rank Output Folder> <SearchKeyword1> [<SearchKeyword2>...<SearchKeywordN>]
+
+
