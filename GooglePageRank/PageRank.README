@@ -1,0 +1,98 @@
+ITCS 6190 Cloud Computing For Big Data Analytics --- Programming Assignment 3 --- Page Rank Implementation on Wiki Page Dump
+
+Name: Gaurav Dhamdhere
+
+
+*** Parameters Considered ***
+
+1. Damping Factor - 0.85
+
+2. Number of Iterations for Page Rank - 10
+
+3. Number of Links to initialize Page Rank - Total number of unique URLs from union of Source URLs and Target URLs
+
+4. Initial Rank - 1 / total_number_of_nodes  
+
+5. Page Rank Equation used - PR(A) = (1- d) + d( PR(B)/C(B) + PR(C)/C(C) + ... )
+   where, PR(A) is Page Rank of A, d is Damping Factor(0.85 in our case), C(X) is count of
+
+*********************** Implementation ***********************
+
+I. Hadoop MapReduce
+
+In Hadoop MapReduce implementation, I have used 4 MapReduce jobs to achieve the Page Ranks output.
+
+1st Job - Count the number of unique URLs to be used for initializing the page rank of all links.
+2nd Job - Create link graph ->  <Source URL> <List of Target URLs> <PageRank>
+3rd Job - This job is executed for specified iterations which calculates the page rank based on output of previous iteration
+4th Job - This is clean up pass where URLs are sorted in descending order of PageRanks and are written to the output. Also intermediate output files are removed.
+
+1. Parameters for execution: Input Directory Path, Output Directory Path
+
+2. Files Required - pagerank.jar , Input file
+
+3. Compling and execution steps:
+
+a) The 'HadoopCode' directory contains a sub-directory 'HadoopSource' and JAR file pagerank.jar
+b) The JAR file pagerank.jar can be directly used to execute the program.
+				Or
+   Source code can be compiled to build a JAR using following commands:
+	Create an empty 'build' directory
+	cd <Absolute path to directory with source files>
+	javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* *.java -d <Path of Build directory>/build -Xlint
+	cd <Directory from where program is going to be executed>
+	jar -cvf pagerank.jar -C <Path of Build directory>/build/ .
+c) Execute the jar using command: 	hadoop jar pagerank.jar application.PageRanking <Input Directory> <Output Directory>
+	example - hadoop jar pagerank.jar application.PageRanking /user/johndoe/input /user/johndoe/output
+
+d) Output file will be generated at <Output Directory> in HDFS. To download, use - hadoop fs -get <Output Directory>/part-r-00000
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+II. Apache Spark
+
+In Spark, I have used pyspark package of Python to compute page ranks for the Wikipedia dump
+
+1. Parameters for execution: Input file name with its absolute path, Output Directory Path
+
+2. Files Required - pagerank.py , Input file
+
+3. Steps for execution:
+
+a) Get the python script 'pagerank.py' from 'SparkCode' directory
+b) Execute the python code using following command
+
+	spark-submit pagerank.py <Input Filename with absolute path> <Output Directory>
+	example - spark-submit pagerank.py /user/johndoe/input/simplewiki-20150901-pages-articles-processed.xml /user/johndoe/output
+
+c) Output file will be generated at <Output Directory> in HDFS. To download, use - hadoop fs -get <Output Directory>/part-00000
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+Inverted Index using TFIDF metric and implementing Search
+
+1. Parameters for execution: Input Directory Path, Output Directory Path, Search Query
+
+2. Files Required - invertedindex.jar , Input file
+
+3. Compling and execution steps:
+
+a) The 'ExtraCredit' directory contains a sub-directory 'InvertedIndexSource' and JAR file invertedindex.jar
+b) The JAR file invertedindex.jar can be directly used to execute the program.
+				Or
+   Source code can be compiled to build a JAR using following commands:
+	Create an empty 'build' directory
+	cd <Absolute path to InvertedIndexSource>
+	javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* *.java -d <Path of Build directory>/build -Xlint
+	cd <Directory from where program is going to be executed>
+	jar -cvf invertedindex.jar -C <Path of Build directory>/build/ .
+c) Execute the jar using command: 	hadoop jar invertedindex.jar application.InvertedIndex <Input Directory> <Output Directory> <Search Word1> <Search Word 2> ... <Search Word N>
+	example - hadoop jar invertedindex.jar application.InvertedIndex /user/johndoe/input /user/johndoe/output yosemite park
+
+d) Ranked records will be generated at <Output Directory> in HDFS. To download, use - hadoop fs -get <Output Directory>/part-r-00000
+
+
+
+
+
+
